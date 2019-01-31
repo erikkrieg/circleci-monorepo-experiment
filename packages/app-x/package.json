@@ -1,0 +1,9 @@
+{
+  "name": "app-x",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "shared-utils": "1.0.0"
+  }
+}
