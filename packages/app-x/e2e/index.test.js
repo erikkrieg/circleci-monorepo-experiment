@@ -9,10 +9,9 @@ beforeAll(async () => {
 })
 
 describe('home page', () => {
-  it('has the expected content', async (done) => {
+  it('has the expected content', async () => {
     await page.goto(url)
     expect(await page.content()).toContain('Hello from APP X')
-    done()
   })
 })
 
