@@ -1,11 +1,12 @@
 const express = require('express')
+const renderHomePage = require('./renderHomePage')
 
 const port = process.env.PORT || 3000
 const appName = 'App X'
 const app = express()
 
 app.get('/', (req, res) => {
-  res.send(appName)
+  res.send(renderHomePage(appName))
 })
 
 app.listen(port, () => {

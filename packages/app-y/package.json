@@ -1,13 +1,18 @@
 {
   "name": "app-y",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "srcindex.js",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js",
-    "lint": "standard"
+    "start": "node src/index.js",
+    "lint": "standard",
+    "test": "jest",
+    "test:e2e": "URL='http://localhost:3000/' jest e2e"
   },
   "dependencies": {
     "shared-utils": "1.0.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^1.12.1"
   }
 }

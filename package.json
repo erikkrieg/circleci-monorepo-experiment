@@ -11,7 +11,8 @@
   "scripts": {
     "app-x": "yarn workspace app-x run",
     "app-y": "yarn workspace app-y run",
-    "lint": "standard"
+    "lint": "standard --env node jest",
+    "test": "yarn workspaces run test"
   },
   "dependencies": {
     "express": "^4.16.4"
