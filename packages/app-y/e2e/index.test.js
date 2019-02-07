@@ -4,7 +4,11 @@ const url = process.env.URL
 let browser, page
 
 beforeAll(async () => {
-  browser = await puppeteer.launch()
+  browser = await puppeteer.launch({
+    headless: true,
+    // This is needed for puppeteer to run on CI/CD containers
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  })
   page = await browser.newPage()
 })
 
