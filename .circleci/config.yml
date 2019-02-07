@@ -31,6 +31,8 @@ jobs:
   lint:
     <<: *defaults
     steps:
+      - run: echo {{ .Environment.CIRCLE_SHA1 }}
+      - run: echo {{ checksum "yarn.lock" }}
       - restore_cache:
           keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
