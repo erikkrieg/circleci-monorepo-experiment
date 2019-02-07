@@ -46,6 +46,8 @@ jobs:
       
       - run: 
           name: Run App X end to end tests
+          environment:
+            URL: http://localhost:3000/
           command: |
             while ! nc -z localhost 3000; do sleep 1; done
             yarn app-x test:e2e
@@ -59,6 +61,8 @@ jobs:
       
       - run: 
           name: Run App Y end to end tests
+          environment:
+            URL: http://localhost:3001/
           command: |
             while ! nc -z localhost 3001; do sleep 1; done
             yarn app-y test:e2e
