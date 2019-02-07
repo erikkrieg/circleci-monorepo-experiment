@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "lint": "standard",
-    "test": "jest src",
+    "test": "echo App X && jest src",
     "test:e2e": "URL='http://localhost:3000/' jest e2e"
   },
   "dependencies": {
