@@ -7,7 +7,7 @@ version: 2
 defaults: &defaults
   docker:
     - image: circleci/node:11-browsers
-  working_directory: ~/repo
+  working_directory: &dir ~/repo
 
 jobs:
   setup:
@@ -17,7 +17,7 @@ jobs:
       - save_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - /
+            - *dir
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "yarn.lock" }}
@@ -25,14 +25,12 @@ jobs:
       - run: yarn install
       - save_cache:
           paths:
-            - node_modules
+            - {{ *dir }}/node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
   lint:
     <<: *defaults
     steps:
-      - run: echo {{ .Environment.CIRCLE_SHA1 }}
-      - run: echo {{ checksum "yarn.lock" }}
       - restore_cache:
           keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
