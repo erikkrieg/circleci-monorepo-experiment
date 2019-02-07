@@ -1,10 +1,14 @@
 const puppeteer = require('puppeteer')
-const url = process.env.URL
+const url = process.env.URL || 'http://localhost:3000/'
 
 let browser, page
 
 beforeAll(async () => {
-  browser = await puppeteer.launch()
+  browser = await puppeteer.launch({
+    headless: true,
+    // This is needed for puppeteer to run on CI/CD containers
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  })
   page = await browser.newPage()
 })
 
