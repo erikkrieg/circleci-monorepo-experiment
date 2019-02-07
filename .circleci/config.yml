@@ -36,3 +36,9 @@ jobs:
       # run tests!
       - run: yarn test
       
+      - run: 
+          name: Start App X
+          command: yarn app-x start
+          background: true
+      
+      - run: yarn app-x test:e2e
