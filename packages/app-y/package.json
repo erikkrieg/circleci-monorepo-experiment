@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "lint": "standard",
     "test": "echo App Y && jest src",
-    "test:e2e": "URL='http://localhost:3000/' jest e2e"
+    "test:e2e": "jest e2e"
   },
   "dependencies": {
     "shared-utils": "1.0.0"

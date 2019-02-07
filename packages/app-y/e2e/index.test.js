@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer')
-const url = process.env.URL
+const url = process.env.URL || 'http://localhost:3000/'
 
 let browser, page
 
