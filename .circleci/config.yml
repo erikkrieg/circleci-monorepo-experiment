@@ -39,6 +39,8 @@ jobs:
       
       - run: 
           name: Start App X
+          environment:
+            PORT: 3000
           command: yarn app-x start
           background: true
       
@@ -47,3 +49,16 @@ jobs:
           command: |
             while ! nc -z localhost 3000; do sleep 1; done
             yarn app-x test:e2e
+
+      - run: 
+          name: Start App Y
+          environment:
+            PORT: 3001
+          command: yarn app-y start
+          background: true
+      
+      - run: 
+          name: Run App Y end to end tests
+          command: |
+            while ! nc -z localhost 3001; do sleep 1; done
+            yarn app-y test:e2e
