@@ -41,4 +41,8 @@ jobs:
           command: yarn app-x start
           background: true
       
-      - run: yarn app-x test:e2e
+      - run: 
+          name: Run App X end to end tests
+          command: |
+            while ! nc -z localhost 3000; do sleep 1; done
+            yarn app-x test:e2e
