@@ -3,41 +3,62 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/node:11-browsers
-      
-    working_directory: ~/repo
 
+defaults: &defaults
+  docker:
+    - image: circleci/node:11-browsers
+  working_directory: ~/repo
+
+jobs:
+  setup:
+    << : *defaults
     steps:
       - checkout
-
-      # Download and cache dependencies
+       - save_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - *defaults.working_directory
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-{{ checksum "yarn.lock" }}
             - v1-dependencies-
-
       - run: yarn install
-
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
 
+  lint:
+    << : *defaults
+    steps:
+      - restore_cache:
+          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn lint
 
+  unit-test:
+    << : *defaults
+    steps:
+      - restore_cache:
+          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn test
       
+  app-x-e2e-test:
+    << : *defaults
+    steps:
+      - restore_cache:
+          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: 
           name: Start App X
           environment:
             PORT: 3000
           command: yarn app-x start
           background: true
-      
       - run: 
           name: Run App X end to end tests
           environment:
@@ -46,13 +67,19 @@ jobs:
             while ! nc -z localhost 3000; do sleep 1; done
             yarn app-x test:e2e
 
+  app-y-e2e-test:
+    << : *defaults
+    steps:
+      - restore_cache:
+          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: 
           name: Start App Y
           environment:
             PORT: 3001
           command: yarn app-y start
           background: true
-      
       - run: 
           name: Run App Y end to end tests
           environment:
@@ -60,3 +87,21 @@ jobs:
           command: |
             while ! nc -z localhost 3001; do sleep 1; done
             yarn app-y test:e2e
+
+workflows:
+  version: 2
+  integration:
+    jobs:
+      - setup
+      - lint:
+          requires:
+            - setup
+      - unit-test:
+          requires:
+            - setup
+      - app-x-e2e-test:
+          requires:
+            - setup
+      - app-y-e2e-test:
+          requires:
+            - setup
