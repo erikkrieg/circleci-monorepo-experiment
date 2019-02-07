@@ -32,27 +32,27 @@ jobs:
     <<: *defaults
     steps:
       - restore_cache:
-          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          keys: v1-dependencies-{{ checksum "yarn.lock" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn lint
 
   unit-test:
     <<: *defaults
     steps:
       - restore_cache:
-          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          keys: v1-dependencies-{{ checksum "yarn.lock" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn test
       
   app-x-e2e-test:
     <<: *defaults
     steps:
       - restore_cache:
-          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          keys: v1-dependencies-{{ checksum "yarn.lock" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: 
           name: Start App X
           environment:
@@ -71,9 +71,9 @@ jobs:
     <<: *defaults
     steps:
       - restore_cache:
-          keys: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          keys: v1-dependencies-{{ checksum "yarn.lock" }}
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run: 
           name: Start App Y
           environment:
