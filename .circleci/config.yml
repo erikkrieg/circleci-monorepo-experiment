@@ -21,7 +21,7 @@ defaults:
 
   build-and-push-image: &build-and-push-image
     <<: *base
-    <<: *master_only
+    # <<: *master_only
     context: aws-ecr
     steps:
       - restore_cache:
