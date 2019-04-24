@@ -6,6 +6,7 @@ version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@4.0.1
+  multirepo: dnephin/multirepo@0.0.7
 
 master_only: &master_only
   filters:
@@ -20,11 +21,17 @@ defaults:
     working_directory: ~/repo
 
   build-and-push-image: &build-and-push-image
+    # <<: *master_only
     machine: true
     working_directory: ~/repo
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - multirepo/run-job-for-paths:
+          paths:
+            - package.json
+            - packages/shared-*
+            - packages/${APP}
       - aws-ecr/build-and-push-image:
           repo: prodigy-test/${APP}
           tag: ${IMAGE_TAG}
