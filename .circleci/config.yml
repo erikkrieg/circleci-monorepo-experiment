@@ -20,9 +20,10 @@ defaults:
     working_directory: ~/repo
 
   build-and-push-image: &build-and-push-image
+    # try machine: true
     docker:
       - image: docker:17.05.0-ce-git
-     working_directory: ~/repo
+    working_directory: ~/repo
     # <<: *master_only
     steps:
       - restore_cache:
