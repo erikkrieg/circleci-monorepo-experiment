@@ -21,7 +21,7 @@ defaults:
     working_directory: ~/repo
 
   build-and-push-image: &build-and-push-image
-    # <<: *master_only
+    <<: *master_only
     machine: true
     working_directory: ~/repo
     steps:
@@ -33,6 +33,8 @@ defaults:
           repo: prodigy-test/${APP}
           tag: ${IMAGE_TAG}
           dockerfile: ./packages/${APP}/${APP}.Dockerfile
+      # could use slack orb to notify committers that a deploy is
+      # waiting for them to approve
   
 jobs:
   setup:
@@ -167,10 +169,12 @@ workflows:
             - lint
             - app-y-e2e-test
       - app-x-ready-for-production:
+          <<: *master_only
           type: approval
           requires:
             - app-x-build-and-push-image-staging
       - app-y-ready-for-production:
+          <<: *master_only
           type: approval
           requires:
             - app-y-build-and-push-image-staging
