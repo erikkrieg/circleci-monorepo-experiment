@@ -140,13 +140,13 @@ workflows:
           requires:
             - setup
       - app-x-build-and-push-image-staging:
-          context: aws-ecr
+          context: aws_ecr
           requires:
             - unit-test
             - lint
             - app-x-e2e-test
       - app-y-build-and-push-image-staging:
-          context: aws-ecr
+          context: aws_ecr
           requires:
             - unit-test
             - lint
