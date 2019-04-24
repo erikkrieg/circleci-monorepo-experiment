@@ -21,7 +21,6 @@ defaults:
     working_directory: ~/repo
 
   build-and-push-image: &build-and-push-image
-    <<: *master_only
     machine: true
     working_directory: ~/repo
     steps:
@@ -157,12 +156,14 @@ workflows:
           requires:
             - setup
       - app-x-build-and-push-image-staging:
+          <<: *master_only
           context: aws_ecr
           requires:
             - unit-test
             - lint
             - app-x-e2e-test
       - app-y-build-and-push-image-staging:
+          <<: *master_only
           context: aws_ecr
           requires:
             - unit-test
@@ -179,10 +180,12 @@ workflows:
           requires:
             - app-y-build-and-push-image-staging
       - app-x-build-and-push-image-production:
+          <<: *master_only
           context: aws_ecr
           requires:
             - app-x-ready-for-production
       - app-y-build-and-push-image-production:
+          <<: *master_only
           context: aws_ecr
           requires:
             - app-y-ready-for-production
