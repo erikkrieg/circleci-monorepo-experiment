@@ -22,7 +22,6 @@ defaults:
   build-and-push-image: &build-and-push-image
     <<: *base
     # <<: *master_only
-    context: aws-ecr
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
@@ -141,11 +140,13 @@ workflows:
           requires:
             - setup
       - app-x-build-and-push-image-staging:
+          context: aws-ecr
           requires:
             - unit-test
             - lint
             - app-x-e2e-test
       - app-y-build-and-push-image-staging:
+          context: aws-ecr
           requires:
             - unit-test
             - lint
