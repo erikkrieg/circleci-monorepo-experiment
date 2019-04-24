@@ -28,10 +28,7 @@ defaults:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - multirepo/run-job-for-paths:
-          paths:
-            - package.json
-            - packages/shared-*
-            - packages/${APP}
+          paths: package.json packages/shared-* packages/${APP}
       - aws-ecr/build-and-push-image:
           repo: prodigy-test/${APP}
           tag: ${IMAGE_TAG}
