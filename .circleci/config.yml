@@ -121,6 +121,17 @@ jobs:
       APP: app-y
       IMAGE_TAG: staging
 
+  app-x-build-and-push-image-production:
+    <<: *build-and-push-image
+    environment:
+      APP: app-x
+      IMAGE_TAG: latest
+
+  app-y-build-and-push-image-production:
+    <<: *build-and-push-image
+    environment:
+      APP: app-y
+      IMAGE_TAG: latest
 
 workflows:
   version: 2.1
@@ -151,3 +162,19 @@ workflows:
             - unit-test
             - lint
             - app-y-e2e-test
+      - app-x-ready-for-production:
+          type: approval
+          requires:
+            - app-x-build-and-push-image-staging
+      - app-y-ready-for-production:
+          type: approval
+          requires:
+            - app-y-build-and-push-image-staging
+      - app-x-build-and-push-image-production:
+          context: aws_ecr
+          requires:
+            - app-x-ready-for-production
+      - app-y-build-and-push-image-production:
+          context: aws_ecr
+          requires:
+            - app-y-ready-for-production
