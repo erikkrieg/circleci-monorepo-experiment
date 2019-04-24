@@ -2,16 +2,41 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
 
-defaults: &defaults
-  docker:
-    - image: circleci/node:11-browsers
-  working_directory: ~/repo
+orbs:
+  aws-ecr: circleci/aws-ecr@4.0.1
+  multirepo: dnephin/multirepo@0.0.7
 
+master_only: &master_only
+  filters:
+    branches:
+      only:
+        - master
+
+defaults:
+  base: &base
+    docker:
+      - image: circleci/node:11-browsers
+    working_directory: ~/repo
+
+  build-and-push-image: &build-and-push-image
+    # <<: *master_only
+    machine: true
+    working_directory: ~/repo
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - multirepo/run-job-for-paths:
+          paths: package.json packages/shared-* packages/${APP}
+      - aws-ecr/build-and-push-image:
+          repo: prodigy-test/${APP}
+          tag: ${IMAGE_TAG}
+          dockerfile: ./packages/${APP}/${APP}.Dockerfile
+  
 jobs:
   setup:
-    <<: *defaults
+    <<: *base
     steps:
       - checkout
       - save_cache:
@@ -29,7 +54,7 @@ jobs:
             - ~/repo/node_modules
 
   lint:
-    <<: *defaults
+    <<: *base
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
@@ -38,7 +63,7 @@ jobs:
       - run: yarn lint
 
   unit-test:
-    <<: *defaults
+    <<: *base
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
@@ -47,7 +72,7 @@ jobs:
       - run: yarn test
       
   app-x-e2e-test:
-    <<: *defaults
+    <<: *base
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
@@ -68,7 +93,7 @@ jobs:
             yarn app-x test:e2e
 
   app-y-e2e-test:
-    <<: *defaults
+    <<: *base
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
@@ -88,8 +113,32 @@ jobs:
             while ! nc -z localhost 3001; do sleep 1; done
             yarn app-y test:e2e
 
+  app-x-build-and-push-image-staging:
+    <<: *build-and-push-image
+    environment:
+      APP: app-x
+      IMAGE_TAG: staging
+
+  app-y-build-and-push-image-staging:
+    <<: *build-and-push-image
+    environment:
+      APP: app-y
+      IMAGE_TAG: staging
+
+  app-x-build-and-push-image-production:
+    <<: *build-and-push-image
+    environment:
+      APP: app-x
+      IMAGE_TAG: latest
+
+  app-y-build-and-push-image-production:
+    <<: *build-and-push-image
+    environment:
+      APP: app-y
+      IMAGE_TAG: latest
+
 workflows:
-  version: 2
+  version: 2.1
   integration:
     jobs:
       - setup
@@ -105,3 +154,31 @@ workflows:
       - app-y-e2e-test:
           requires:
             - setup
+      - app-x-build-and-push-image-staging:
+          context: aws_ecr
+          requires:
+            - unit-test
+            - lint
+            - app-x-e2e-test
+      - app-y-build-and-push-image-staging:
+          context: aws_ecr
+          requires:
+            - unit-test
+            - lint
+            - app-y-e2e-test
+      - app-x-ready-for-production:
+          type: approval
+          requires:
+            - app-x-build-and-push-image-staging
+      - app-y-ready-for-production:
+          type: approval
+          requires:
+            - app-y-build-and-push-image-staging
+      - app-x-build-and-push-image-production:
+          context: aws_ecr
+          requires:
+            - app-x-ready-for-production
+      - app-y-build-and-push-image-production:
+          context: aws_ecr
+          requires:
+            - app-y-ready-for-production

@@ -1,0 +1,9 @@
+**/node_modules
+**/.git
+.circleci
+.gitignore
+.nvmrc
+**/*.md
+**/*.log
+**/*Dockerfile
+.dockerignore
