@@ -20,6 +20,9 @@ defaults:
       - image: circleci/node:11-browsers
     working_directory: ~/repo
 
+  app-filter: &app-filter
+    paths: package.json packages/shared-* packages/${APP}
+
   build-and-push-image: &build-and-push-image
     # <<: *master_only
     machine: true
@@ -28,7 +31,7 @@ defaults:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - multirepo/run-job-for-paths:
-          paths: package.json packages/shared-* packages/${APP}
+          <<: *app-filter
       - aws-ecr/build-and-push-image:
           repo: prodigy-test/${APP}
           tag: ${IMAGE_TAG}
@@ -168,10 +171,20 @@ workflows:
             - app-y-e2e-test
       - app-x-ready-for-production:
           type: approval
+          steps:
+            - restore_cache:
+                key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+            - multirepo/run-job-for-paths:
+                <<: *app-filter
           requires:
             - app-x-build-and-push-image-staging
       - app-y-ready-for-production:
           type: approval
+          steps:
+            - restore_cache:
+                key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+            - multirepo/run-job-for-paths:
+                <<: *app-filter
           requires:
             - app-y-build-and-push-image-staging
       - app-x-build-and-push-image-production:
